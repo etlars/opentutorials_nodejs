@@ -13,19 +13,42 @@ app.locals.pretty = true;
 app.set('views', './views_file');
 app.set('view engine', 'jade');
 app.get('/topic/new', function(req, res){
-  res.render('new');
+  fs.readdir('Data', function(error, files){
+    if(error){
+      console.log(error);
+      res.status(500).send('Internal Server Error');
+    }
+    res.render('new', {topics:files});
+  });
+
+
 })
 
-app.get('/topic', function(req, res){
+app.get(['/topic', '/topic/:id'], function(req, res){
     fs.readdir('Data', function(error, files){
       if(error){
         console.log(error);
         res.status(500).send('Internal Server Error');
       }
-      res.render('view', {topics:files});
-    })
+
+      var id = req.params.id;
+
+      if(id){
+        fs.readFile('Data/'+id, 'utf8', function(error, data){
+          if(error){
+              console.log(error);
+              res.status(500).send('Internal Server Error');
+          }
+          //res.send(data);
+          res.render('view', {topics:files, title:id, description:data});
+        });
+      } else {
+        res.render('view', {topics:files, title:'Welcome', description: 'Hello JvaScript for Server'});
+      }
+    });
 })
 
+/*
 app.get('/topic/:id', function(req, res){
     var id=req.params.id;
 
@@ -44,6 +67,7 @@ app.get('/topic/:id', function(req, res){
       })
     })
 })
+*/
 
 app.post('/topic', function(req, res){
   //res.send("Hi Post");
@@ -56,10 +80,7 @@ app.post('/topic', function(req, res){
       console.log(error);
       res.status(500).send('Internal Server Error');
     }
-    res.send('Success!');
+    //res.send('Success!');
+    res.redirect('/topic/'+title)
   })
-
-
-
-
 })

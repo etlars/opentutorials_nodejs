@@ -10,8 +10,10 @@ html
         li
           a(href='/topic/'+topic)=topic
     article
-      h2=title
-      =description
-    p
-      div
-        a(href='/topic/new') new
+      form(action='/topic/' method='post')
+        p
+          input(type='text' name='title' placeholder='title')
+        p
+          textarea(name='description')
+        p
+          input(type='submit')

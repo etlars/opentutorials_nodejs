@@ -16,6 +16,19 @@ app.get('/topic/new', function(req, res){
   res.render('new');
 })
 
+app.get('/topic', function(req, res){
+    fs.readdir('data', function(error, files){
+      if(error){
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+      }
+
+      res.render('view', {topics:files});
+
+    })
+
+})
+
 app.post('/topic', function(req, res){
   //res.send("Hi Post");
   //res.send('Hi Post'+req.body.title);

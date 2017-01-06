@@ -1,10 +1,16 @@
+
 var express = require('express');
 var app = express();
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.locals.pretty = true;
 app.set('view engine', 'jade');
 app.set('views', './views');
 
 app.use(express.static('public'));
+
 app.get('/', function(req, res){
 		res.send("Hello Express");
 	}
@@ -12,6 +18,23 @@ app.get('/', function(req, res){
 
 app.get('/form', function(req, res){
 		res.render('form');
+});
+
+app.get('/form_receiver', function(req, res){
+	  //res.send('Hello GET');
+
+		var title=req.query.title;
+		var description=req.query.description;
+		res.send(title+',  '+description);
+	}
+);
+
+app.post('/form_receiver', function(req, res){
+		//res.send('Hello POST');
+
+		var title=req.body.title;
+		var description=req.body.description;
+		res.send(title+',  '+description);
 });
 
 app.get('/template', function(req, res){
@@ -80,7 +103,7 @@ app.get('/semantic/:id', function(req, res){
 	`;
 
 	res.send(output);
-})
+});
 
 app.get('/semantic/:id/:mode', function(req, res){
 /*
@@ -94,7 +117,7 @@ app.get('/semantic/:id/:mode', function(req, res){
 	`;
 */
 	res.send(req.params.id+','+req.params.mode);
-})
+});
 
 app.listen(3000, function() {
 	console.log('Example app listen on port 3000!');

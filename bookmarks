@@ -1,0 +1,10 @@
+
+
+express : minimal nodejs web application framework
+http://expressjs.com/
+
+supervisor : node *.js without restart
+https://www.npmjs.com/package/supervisor
+
+body-parser : parsing body from POST request
+https://www.npmjs.com/package/body-parser

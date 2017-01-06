@@ -17,16 +17,32 @@ app.get('/topic/new', function(req, res){
 })
 
 app.get('/topic', function(req, res){
-    fs.readdir('data', function(error, files){
+    fs.readdir('Data', function(error, files){
       if(error){
         console.log(error);
         res.status(500).send('Internal Server Error');
       }
-
       res.render('view', {topics:files});
-
     })
+})
 
+app.get('/topic/:id', function(req, res){
+    var id=req.params.id;
+
+    fs.readdir('Data', function(error, files){
+      if(error){
+        console.log(error);
+        res.status(500).send('Internal Server Error');
+      }
+      fs.readFile('Data/'+id, 'utf8', function(error, data){
+        if(error){
+            console.log(error);
+            res.status(500).send('Internal Server Error');
+        }
+        //res.send(data);
+        res.render('view', {topics:files, title:id, description:data});
+      })
+    })
 })
 
 app.post('/topic', function(req, res){
@@ -35,7 +51,7 @@ app.post('/topic', function(req, res){
   var title = req.body.title;
   var description = req.body.description;
 
-  fs.writeFile('data/'+title, description, function(error){
+  fs.writeFile('Data/'+title, description, function(error){
     if(error){
       console.log(error);
       res.status(500).send('Internal Server Error');

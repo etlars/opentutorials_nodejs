@@ -5,11 +5,38 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }))
 
+var multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // cb: call-back function
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+    //cb(null, file.fieldname + '-' + Date.now())
+  }
+})
+//var upload = multer({ dest: 'uploads/' })
+var upload = multer({ storage: storage})
+
+
+app.use('/user', express.static('uploads'));
+
+
 app.listen(3000, function(){
   console.log('Connected Port: 3000');
 })
 
 app.locals.pretty = true;
+
+app.get('/upload', function(req, res){
+  res.render('upload');
+})
+app.post('/upload', upload.single('userfile'), function(req, res){
+  console.log(req.file);
+  res.send('Uploaded : '+req.file.originalname);
+})
+
 app.set('views', './views_file');
 app.set('view engine', 'jade');
 app.get('/topic/new', function(req, res){

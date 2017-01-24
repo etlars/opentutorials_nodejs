@@ -3,8 +3,8 @@ html
   head
     meta(charset='utf-8')
   body
-    h2
-      a(href='/topic') Server Side JavaScript with OrientDB
+    h3
+      a(href='/topic') Server Side JavaScript 
     ul
       each topic in topics
         li
@@ -19,6 +19,10 @@ html
       else
         h2 Welcome
         |  This is server side javascript tutorial.
-    p
-      div
+    ul
+      li
         a(href='/topic/add') add
+      if topic
+        li
+          - rid = encodeURIComponent(topic['@rid'])
+          a(href='/topic/'+rid+'/edit') edit

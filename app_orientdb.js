@@ -50,16 +50,34 @@ app.post('/upload', upload.single('userfile'), function(req, res){
 
 app.set('views', './views_orientdb');
 app.set('view engine', 'jade');
-app.get('/topic/new', function(req, res){
-  fs.readdir('Data', function(error, files){
-    if(error){
-      console.log(error);
+app.get('/topic/add', function(req, res){
+  var sql = 'SELECT FROM topic';
+  db.query(sql).then(function(topics){
+    if(topics.length == 0){
+      console.log('There is no record');
       res.status(500).send('Internal Server Error');
     }
-    res.render('new', {topics:files});
+    res.render('add', {topics:topics});
   });
+});
 
+app.post('/topic/add', function(req, res){
+  var title = req.body.title;
+  var description = req.body.description;
+  var author = req.body.author;
 
+  var sql = 'INSERT INTO topic (title, description, author) VALUES(:title, :desc, :author)';
+  db.query(sql, {
+    params:{
+      title:title,
+      desc:description,
+      author:author
+    }
+  }).then(function(results){
+    //res.send(results);
+    //res.redirect('/topic/'+results[0]['@rid']);
+    res.redirect('/topic/'+encodeURIComponent(results[0]['@rid']));
+  });
 })
 
 app.get(['/topic', '/topic/:id'], function(req, res){
@@ -76,65 +94,5 @@ app.get(['/topic', '/topic/:id'], function(req, res){
     else {
       res.render('view', {topics:topics});
     }
-  })
-/*
-    fs.readdir('Data', function(error, files){
-      if(error){
-        console.log(error);
-        res.status(500).send('Internal Server Error');
-      }
-
-      var id = req.params.id;
-
-      if(id){
-        fs.readFile('Data/'+id, 'utf8', function(error, data){
-          if(error){
-              console.log(error);
-              res.status(500).send('Internal Server Error');
-          }
-          //res.send(data);
-          res.render('view', {topics:files, title:id, description:data});
-        });
-      } else {
-        res.render('view', {topics:files, title:'Welcome', description: 'Hello JvaScript for Server'});
-      }
-    });
-*/
-})
-
-/*
-app.get('/topic/:id', function(req, res){
-    var id=req.params.id;
-
-    fs.readdir('Data', function(error, files){
-      if(error){
-        console.log(error);
-        res.status(500).send('Internal Server Error');
-      }
-      fs.readFile('Data/'+id, 'utf8', function(error, data){
-        if(error){
-            console.log(error);
-            res.status(500).send('Internal Server Error');
-        }
-        //res.send(data);
-        res.render('view', {topics:files, title:id, description:data});
-      })
-    })
-})
-*/
-
-app.post('/topic', function(req, res){
-  //res.send("Hi Post");
-  //res.send('Hi Post'+req.body.title);
-  var title = req.body.title;
-  var description = req.body.description;
-
-  fs.writeFile('Data/'+title, description, function(error){
-    if(error){
-      console.log(error);
-      res.status(500).send('Internal Server Error');
-    }
-    //res.send('Success!');
-    res.redirect('/topic/'+title)
   })
 })

@@ -14,9 +14,11 @@ html
       if topic
         h2=topic.title
         = topic.description
+        if (topic.author != null)
+          div= '- by '+topic.author
       else
         h2 Welcome
         |  This is server side javascript tutorial.
     p
       div
-        a(href='/topic/new') new
+        a(href='/topic/add') add

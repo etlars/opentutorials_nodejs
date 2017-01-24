@@ -88,7 +88,7 @@ app.get('/topic/:id/edit', function(req, res){
   });
 });
 
-app.post('/topic/:id/add', function(req, res){
+app.post('/topic/:id/edit', function(req, res){
   var sql = 'UPDATE topic SET title=:t, description=:d, author=:a WHERE @rid=:rid';
   var id = req.params.id;
   var title = req.body.title;
@@ -103,6 +103,29 @@ app.post('/topic/:id/add', function(req, res){
     }
   }).then(function(topics){
     res.redirect('/topic/'+encodeURIComponent(id));
+  });
+});
+
+app.get('/topic/:id/delete', function(req, res){
+  var sql = 'SELECT FROM topic';
+  var id = req.params.id;
+  db.query(sql).then(function(topics){
+    var sql = 'SELECT FROM topic WHERE @rid=:rid';
+    db.query(sql, {params:{rid:id}}).then(function(topic){
+      res.render('delete', {topics:topics, topic:topic[0]});
+    });
+  });
+});
+
+app.post('/topic/:id/delete', function(req, res){
+  var sql = 'DELETE FROM topic WHERE @rid=:rid';
+  var id = req.params.id;
+  db.query(sql, {
+    params:{
+      rid:id
+    }
+  }).then(function(topics){
+    res.redirect('/topic/');
   });
 });
 

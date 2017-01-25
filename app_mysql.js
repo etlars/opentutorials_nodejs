@@ -64,7 +64,73 @@ app.post('/topic/add', function(req, res){
   });
 });
 
+app.get(['/topic/:id/edit'], function(req, res){
+    var sql = 'SELECT id, title FROM topic';
+    con.query(sql, function(err, topics, fields){
+      //res.send(rows);
+      var id = req.params.id;
+      if(id){
+        var sql = 'SELECT * FROM topic WHERE id=?';
+        con.query(sql, [id], function(err, topic, fields){
+          if(err){
+            console.log(err);
+            res.status(500).send('Internal Server Error');
+          } else{
+            res.render('edit', {topics:topics, topic:topic[0]});
+          }
+        })
+      }
+      else{
+        console.log('no id');
+        res.status(500).send('Internal Server Error');
+      }
+    });
+});
 
+app.post(['/topic/:id/edit'], function(req, res){
+  var title = req.body.title;
+  var description = req.body.description;
+  var author = req.body.author;
+  var id = req.params.id;
+  var sql = 'UPDATE topic SET title=?, description=?, author=? WHERE id=?';
+  con.query(sql, [title, description, author, id], function(err, result, fields){
+    if(err){
+      console.log(err);
+      res.status(500).send('Internal Server Error');
+    }else {
+      res.redirect('/topic/'+id);
+    }
+  });
+});
+
+app.get(['/topic/:id/delete'], function(req, res){
+  var sql = 'SELECT id, title FROM topic';
+  var id = req.params.id;
+  con.query(sql, function(err, topics, fields){
+    var sql = 'SELECT * FROM topic WHERE id=?'
+    con.query(sql, [id], function(err, topic){
+      if(err){
+        console.log(err);
+        res.status(500).send('Internal Sever Error')
+      } else{
+        if(topic.length == 0){
+          console.log('There is no record');
+        }
+        //res.send(topic);
+        res.render('delete', {topics:topics, topic:topic[0]})
+      }
+    });
+  });
+});
+
+app.post(['/topic/:id/delete'], function(req, res){
+  var id = req.params.id;
+  var sql = 'DELETE FROM topic WHERE id=?';
+  con.query(sql, [id], function(err, result){
+    //res.send(result);
+    res.redirect('/topic/');
+  })
+});
 app.get(['/topic', '/topic/:id'], function(req, res){
     var sql = 'SELECT id, title FROM topic';
     con.query(sql, function(err, topics, fields){

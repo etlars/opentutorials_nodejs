@@ -17,5 +17,11 @@ html
       else
         h3 Welcome
         | This is Server Side JavaScript
-    div
-      a(href='/topic/add') add
+    ul
+      li
+        a(href='/topic/add') add
+      if(topic)
+        li
+          a(href='/topic/'+topic.id+'/edit') edit
+        li
+          a(href='/topic/'+topic.id+'/delete') delete

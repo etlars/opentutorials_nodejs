@@ -7,27 +7,14 @@ var con = mysql.createConnection({
 });
 
 con.connect();
-/*
-var sql = 'SELECT * FROM topic';
-con.query(sql, function(err, rows, fields){
-  if (err){
-    console.log(err);
-  }
-  else {
-    for(var i=0; i<rows.length; i++){
-      console.log(rows[i].description);
-    }
-  }
-});
-*/
 
-var sql = 'INSERT INTO topic (title, description, author) VALUES(?,?,?)';
-var params = ['Supervisor', 'Watcher without restarting node', 'color.park'];
+var sql = 'DELETE FROM topic WHERE id=?';
+var params = 4;
 con.query(sql, params, function(err, rows, fields){
   if(err){
     console.log(err);
   } else {
-    console.log(rows.insertId);
+    console.log(rows);
   }
 });
 

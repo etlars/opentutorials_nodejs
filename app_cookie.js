@@ -1,17 +1,21 @@
 var express=require('express');
 var cookieParser = require('cookie-parser')
 var app = express();
-app.use(cookieParser());
+//app.use(cookieParser());
+app.use(cookieParser('asdibch35402c3bh q13re##111'));
 
 // ROUTERS
 app.get('/count', function(req, res){
   var count = 0;
 
-  if(req.cookies.count)
-    count = parseInt(req.cookies.count);
+  //if(req.cookies.count)
+  if(req.signedCookies.count)
+    //count = parseInt(req.cookies.count);
+    count = parseInt(req.signedCookies.count);
 
   count = count + 1;
-  res.cookie('count', count);
+  //res.cookie('count', count);
+  res.cookie('count', count, {signed:true});
   res.send('count : '+ count);
 })
 
@@ -37,9 +41,40 @@ app.get('/products', function(req, res){
     `);
   //res.send('Products');
 });
-
 app.get('/cart', function(req, res){
-  res.send('Cart');
+  var cart = req.signedCookies.cart;
+  if(!cart){
+    res.send('Empty!');
+  }else{
+    var output = '';
+    for(var id in cart){
+      output += `
+        <li>
+        ${products[id].title} (${cart[id]} ea.)
+        </li>
+      `;
+    }
+    res.send(`
+      <h2>Cart</h2>
+      <ul>${output}</ul>
+      <a href="/products">Product List</a>`);
+  }
+  //res.send('Hi~ Cart');
+});
+app.get('/cart/:id', function(req, res){
+  var id = req.params.id;
+  var cart = {};
+  if(req.signedCookies.cart)
+    cart = req.signedCookies.cart;
+
+  if(!cart[id])
+    cart[id]=0;
+
+  cart[id] = parseInt(cart[id])+1;
+  res.cookie('cart', cart, {signed:true});
+
+  res.redirect('/cart');
+  //res.send(cart);
 });
 
 

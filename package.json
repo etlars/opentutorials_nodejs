@@ -14,6 +14,7 @@
     "multer": "~1.2.1",
     "orientjs": "~2.2.4",
     "mysql": "~2.12.0",
-    "cookie-parser": "~1.4.3"
+    "cookie-parser": "~1.4.3",
+    "express-session": "~1.15.0"
   }
 }

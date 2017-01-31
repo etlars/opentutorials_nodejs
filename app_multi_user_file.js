@@ -2,6 +2,7 @@ var express=require('express');
 var session=require('express-session');
 var FileStore = require('session-file-store')(session);
 var bodyParser=require('body-parser');
+var md5=require('md5');
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -55,7 +56,7 @@ app.get('/welcome', function(req, res){
 
 var users = [{
   username:'color.park',
-  password:'1234',
+  password:'81dc9bdb52d04dc20036dbd8313ed055',  //md5('1234'),
   displayName:'Jospeph'
 }];
 
@@ -98,7 +99,7 @@ app.post('/auth/login', function(req, res){
 
   for( var i=0; i<users.length; i++){
     var user = users[i];
-    if(user.username==username && user.password==password){
+    if(user.username==username && user.password==md5(password)){
       req.session.displayName = user.displayName;
       return req.session.save(function(){
         res.redirect('/welcome');  // save가 완료되면 return

@@ -65,16 +65,21 @@ var users = [
 ];
 
 app.post('/auth/register', function(req, res){
-  var user = {
-    username:req.body.username,
-    password:req.body.password,
-    displayName:req.body.displayName
-  };
-  users.push(user); // 전역변수 users에 추가하기
-  //res.send(users); // 디버깅용 브라우저에 출력하기
-  req.session.displayName = req.body.displayName;
-  req.session.save(function(){
-    res.redirect('/welcome');
+
+  hasher({password:req.body.password}, function(err, pass, salt, hash){
+    var user = {
+      username:req.body.username,
+      password:hash,
+      salt:salt,
+      displayName:req.body.displayName
+    };
+
+    users.push(user); // 전역변수 users에 추가하기
+    //res.send(users); // 디버깅용 브라우저에 출력하기
+    req.session.displayName = req.body.displayName;
+    req.session.save(function(){
+      res.redirect('/welcome');
+    });
   });
 });
 
@@ -103,12 +108,7 @@ app.post('/auth/login', function(req, res){
 
   for( var i=0; i<users.length; i++){
     var user = users[i];
-    // if(user.username==username && user.password==sha256(password+user.salt)){
-    //   req.session.displayName = user.displayName;
-    //   return req.session.save(function(){
-    //     res.redirect('/welcome');  // save가 완료되면 return
-    //   });
-    // }
+
     if(username == user.username){
       return hasher({password:password, salt:user.salt}, function(err, pass, salt, hash){
         if(hash === user.password){
@@ -122,6 +122,7 @@ app.post('/auth/login', function(req, res){
       });
     }
   }
+  res.send('Who R U ? <a href="/auth/login">login</a>');
   //res.send('username: '+req.body.username+', password : '+req.body.password);
 });
 

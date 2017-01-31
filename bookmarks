@@ -33,3 +33,6 @@ https://www.npmjs.com/package/cookie-parser
 
 express session file store
 https://www.npmjs.com/package/session-file-store
+
+express session mysql store
+https://www.npmjs.com/package/express-mysql-session

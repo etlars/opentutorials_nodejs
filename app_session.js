@@ -24,6 +24,30 @@ app.get('/temp', function(req, res){
   res.send('result: '+count);
 });
 
+// Logout
+  app.get('/auth/logout', function(req, res){
+  delete req.session.displayName;
+
+  res.redirect('/welcome');
+  //res.send('Bye~ Logout successfully');
+})
+
+app.get('/welcome', function(req, res){
+  if(req.session.displayName){
+    res.send(`
+      <h2> Hello, ${req.session.displayName}</h2>
+      <a href="/auth/logout">Logout</a>
+      `);
+  } else {
+    res.send(`
+      <h2> Welcome </h2>
+      <a href="/auth/login">Login</a>
+      `);
+
+  }
+  //res.send(req.session)
+});
+
 // login
 app.post('/auth/login', function(req, res){
   var username = req.body.username;
@@ -32,12 +56,14 @@ app.post('/auth/login', function(req, res){
   // db에서 사용자 인증정보를 받아와서 대조해야하지만, 편의를 위해 코드로 밖음. ㅡ.ㅡ;;
   var user = {
     username:'color.park',
-    password:'1234'
+    password:'1234',
+    displayName:'Jospeph'
   };
 
   var output = '';
 
   if(user.username==username && user.password==password){
+    req.session.displayName = user.displayName;
     res.redirect('/welcome');
   }
   else{

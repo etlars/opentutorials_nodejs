@@ -36,3 +36,6 @@ https://www.npmjs.com/package/session-file-store
 
 express session mysql store
 https://www.npmjs.com/package/express-mysql-session
+
+express session orientdb store
+https://www.npmjs.com/package/connect-oriento

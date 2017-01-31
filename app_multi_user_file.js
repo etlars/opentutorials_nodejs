@@ -2,8 +2,8 @@ var express=require('express');
 var session=require('express-session');
 var FileStore = require('session-file-store')(session);
 var bodyParser=require('body-parser');
-var md5=require('md5');
-var sha256=require('sha256');
+var bkfd2Password = require("pbkdf2-password");
+var hasher = bkfd2Password();
 var app = express();
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -58,21 +58,10 @@ app.get('/welcome', function(req, res){
 var users = [
   {
     username:'color.park',
-    //password:'81dc9bdb52d04dc20036dbd8313ed055',  //md5('1234'),
-    //password: '7e5b5af1c57ad49e77e659c209f7bae3', //md5('1234'+salt) global salt
-    //password: 'b1a9cd5fc4f1a56d79e4cbce86e1b25b', //md5('1234'+ local salt)
-    password: '67d4e7ed168ca1377a540e4ed84e004969a61cbdb6b2ef93a0a783bd69b5c8c9', // sha(pwd+salt)
-    salt: '12421542gb 109213&*%*2',
+    password: 'DOdcxcbj0sM8zCF5S/Agw1h8T9i/2eoA5y82fQr2zakUtaMJXB7GYuI0/0o5FXD45PsBc9wwdf/9knTqWOyFVOQJfeBqYiwCriZhQIlKTbA4jH8Oe9Wo7b7IogyH5l0mK7BoSQDUDEiZdp4kkIu1o1FE9TW666PRoAzz0ti6jEQ=', // pbkdf2-password(pwd+salt)
+    salt: 'pIVX4DLJRU9OcQYDuMg/Otr1+L+csmbqBb7ziW27RKiwDmhVoKLF8Wwp5pcm2WoQhtmESfIpdrXiyQMaNeUv5w==',
     displayName:'Joseph'
-  },
-  {
-    username:'color.park2',
-    //password: '7e5b5af1c57ad49e77e659c209f7bae3', //pwd가 같으면 md5(pwd+salt)도 항상 같다.
-    //password: '97baad13ef3acde33cbc2684285cb460',
-    password: '6806813bb3aa4c51868ba864194f5399dcc1aadc720a97ff6aac7b6137b4118b',
-    salt: 'sdf q341$%@662fdw ds',
-    displayName:'Joseph2'
-  },
+  }
 ];
 
 app.post('/auth/register', function(req, res){
@@ -114,16 +103,25 @@ app.post('/auth/login', function(req, res){
 
   for( var i=0; i<users.length; i++){
     var user = users[i];
-    //if(user.username==username && user.password==md5(password+user.salt)){
-    if(user.username==username && user.password==sha256(password+user.salt)){
-      req.session.displayName = user.displayName;
-      return req.session.save(function(){
-        res.redirect('/welcome');  // save가 완료되면 return
+    // if(user.username==username && user.password==sha256(password+user.salt)){
+    //   req.session.displayName = user.displayName;
+    //   return req.session.save(function(){
+    //     res.redirect('/welcome');  // save가 완료되면 return
+    //   });
+    // }
+    if(username == user.username){
+      return hasher({password:password, salt:user.salt}, function(err, pass, salt, hash){
+        if(hash === user.password){
+          req.session.displayName = user.displayName;
+          req.session.save(function(){
+            res.redirect('/welcome');
+          })
+        }else{
+          res.send('Who R U ? <a href="/auth/login">login</a>');
+        }
       });
     }
   }
-
-  res.send('Who R U ? <a href="/auth/login">login</a>');
   //res.send('username: '+req.body.username+', password : '+req.body.password);
 });
 

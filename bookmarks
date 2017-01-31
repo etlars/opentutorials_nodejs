@@ -40,3 +40,6 @@ npm install md5 --save
 
 express sha256
 npm install sha256 --save
+
+express pbkdf2-password
+https://www.npmjs.com/package/pbkdf2-password

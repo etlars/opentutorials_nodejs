@@ -30,3 +30,6 @@ https://github.com/orientechnologies/orientjs
 
 cookie parser
 https://www.npmjs.com/package/cookie-parser
+
+express session file store
+https://www.npmjs.com/package/session-file-store

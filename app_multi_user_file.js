@@ -53,12 +53,24 @@ app.get('/welcome', function(req, res){
   }
   //res.send(req.session)
 });
-
-var users = [{
-  username:'color.park',
-  password:'81dc9bdb52d04dc20036dbd8313ed055',  //md5('1234'),
-  displayName:'Jospeph'
-}];
+//var salt = 'dsfg;j3$^@209234ujl!SFaslfjl1&*&*31!';
+var users = [
+  {
+    username:'color.park',
+    //password:'81dc9bdb52d04dc20036dbd8313ed055',  //md5('1234'),
+    //password: '7e5b5af1c57ad49e77e659c209f7bae3', //md5('1234'+salt) global salt
+    password: 'b1a9cd5fc4f1a56d79e4cbce86e1b25b', //md5('1234'+ local salt)
+    salt: '12421542gb 109213&*%*2',
+    displayName:'Joseph'
+  },
+  {
+    username:'color.park2',
+    //password: '7e5b5af1c57ad49e77e659c209f7bae3', //pwd가 같으면 md5(pwd+salt)도 항상 같다.
+    password: '97baad13ef3acde33cbc2684285cb460',
+    salt: 'sdf q341$%@662fdw ds',
+    displayName:'Joseph2'
+  },
+];
 
 app.post('/auth/register', function(req, res){
   var user = {
@@ -99,7 +111,7 @@ app.post('/auth/login', function(req, res){
 
   for( var i=0; i<users.length; i++){
     var user = users[i];
-    if(user.username==username && user.password==md5(password)){
+    if(user.username==username && user.password==md5(password+user.salt)){
       req.session.displayName = user.displayName;
       return req.session.save(function(){
         res.redirect('/welcome');  // save가 완료되면 return

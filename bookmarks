@@ -33,3 +33,7 @@ https://www.npmjs.com/package/cookie-parser
 
 express session file store
 https://www.npmjs.com/package/session-file-store
+
+
+express md5
+npm install md5 --save

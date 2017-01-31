@@ -43,35 +43,70 @@ app.get('/welcome', function(req, res){
   } else {
     res.send(`
       <h2> Welcome </h2>
-      <a href="/auth/login">Login</a>
+      <ul>
+        <li><a href="/auth/login">Login</a></li>
+        <li><a href="/auth/register">Register</a></li>
+      </ul>
       `);
 
   }
   //res.send(req.session)
 });
 
+var users = [{
+  username:'color.park',
+  password:'1234',
+  displayName:'Jospeph'
+}];
+
+app.post('/auth/register', function(req, res){
+  var user = {
+    username:req.body.username,
+    password:req.body.password,
+    displayName:req.body.displayName
+  };
+  users.push(user); // 전역변수 users에 추가하기
+  //res.send(users); // 디버깅용 브라우저에 출력하기
+  req.session.displayName = req.body.displayName;
+  req.session.save(function(){
+    res.redirect('/welcome');
+  });
+});
+
+app.get('/auth/register', function(req, res){
+  var output = `
+  <h2>Register</h2>
+  <form action="/auth/register" method="post">
+    <p>
+        <input type='text' name='username' placeholder='username'>
+    </p><p>
+        <input type='password' name='password' placeholder='passsword'>
+    </p><p>
+        <input type='text' name='displayName' placeholder='displayName'>
+    </p>
+    <input type='submit'>
+  </form>
+  `;
+  res.send(output);
+});
+
+
 // login
 app.post('/auth/login', function(req, res){
   var username = req.body.username;
   var password = req.body.password;
 
-  // db에서 사용자 인증정보를 받아와서 대조해야하지만, 편의를 위해 코드로 밖음. ㅡ.ㅡ;;
-  var user = {
-    username:'color.park',
-    password:'1234',
-    displayName:'Jospeph'
-  };
-
-  var output = '';
-
-  if(user.username==username && user.password==password){
-    req.session.displayName = user.displayName;
-    res.redirect('/welcome');
-  }
-  else{
-    res.send('Who R U ? <a href="/auth/login">login</a>');
+  for( var i=0; i<users.length; i++){
+    var user = users[i];
+    if(user.username==username && user.password==password){
+      req.session.displayName = user.displayName;
+      return req.session.save(function(){
+        res.redirect('/welcome');  // save가 완료되면 return
+      });
+    }
   }
 
+  res.send('Who R U ? <a href="/auth/login">login</a>');
   //res.send('username: '+req.body.username+', password : '+req.body.password);
 });
 

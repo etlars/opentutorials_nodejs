@@ -37,3 +37,6 @@ https://www.npmjs.com/package/session-file-store
 
 express md5
 npm install md5 --save
+
+express sha256
+npm install sha256 --save

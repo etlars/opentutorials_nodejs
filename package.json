@@ -17,6 +17,8 @@
     "cookie-parser": "~1.4.3",
     "express-session": "~1.15.0",
     "session-file-store": "~1.0.0",
-    "pbkdf2-password": "~1.2.1"
+    "pbkdf2-password": "~1.2.1",
+    "passport": "~0.3.2",
+    "passport-local": "~1.0.0"
   }
 }

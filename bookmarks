@@ -43,3 +43,6 @@ npm install sha256 --save
 
 express pbkdf2-password
 https://www.npmjs.com/package/pbkdf2-password
+
+passportjs
+http://passportjs.org/

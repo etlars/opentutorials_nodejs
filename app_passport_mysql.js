@@ -4,6 +4,16 @@ var MySQLStore = require('express-mysql-session')(session);
 var bodyParser=require('body-parser');
 var bkfd2Password = require("pbkdf2-password");
 var hasher = bkfd2Password();
+var mysql = require('mysql');
+var con = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'dlsdus',
+  database: 'o2'
+});
+
+con.connect();
+
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
@@ -140,13 +150,22 @@ app.post('/auth/register', function(req, res){
       displayName:req.body.displayName
     };
 
-    users.push(user); // 전역변수 users에 추가하기
-    //res.send(users); // 디버깅용 브라우저에 출력하기
-    req.login(user, function(err){  // passportjs method
-      req.session.save(function(){
+    var sql = 'INSERT INTO users SET ?';
+    con.query(sql, user, function(err, result){
+      if(err){
+        console.log(err);
+        res.status(500);
+      }else {
         res.redirect('/welcome');
-      });
+      }
     });
+    //users.push(user); // 전역변수 users에 추가하기
+    //res.send(users); // 디버깅용 브라우저에 출력하기
+    // req.login(user, function(err){  // passportjs method
+    //   req.session.save(function(){
+    //     res.redirect('/welcome');
+    //   });
+    // });
   });
 });
 

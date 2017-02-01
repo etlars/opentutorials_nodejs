@@ -18,8 +18,10 @@
     "express-session": "~1.15.0",
     "session-file-store": "~1.0.0",
     "pbkdf2-password": "~1.2.1",
-    "express-mysql-session": "~1.2.0"
+    "express-mysql-session": "~1.2.0",
     "passport": "~0.3.2",
-    "passport-local": "~1.0.0"
+    "passport-local": "~1.0.0",
+    "passport-facebook": "~2.1.1",
+    "https-proxy-agent": "~1.0.0"
   }
 }

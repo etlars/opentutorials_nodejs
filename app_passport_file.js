@@ -6,6 +6,7 @@ var bkfd2Password = require("pbkdf2-password");
 var hasher = bkfd2Password();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var FacebookStrategy = require('passport-facebook').Strategy;
 
 var app = express();
 
@@ -65,14 +66,14 @@ app.get('/welcome', function(req, res){
 // login for passport
 passport.serializeUser(function(user, done) { // 최초 로긴할때 한번만 실행됨
   console.log('serializeUser', user);
-  done(null, user.username);
+  done(null, user.authId);
 });
 
 passport.deserializeUser(function(id, done) {
   console.log('deserializeUser', id);
   for(var i=0; i<users.length; i++){
     var user = users[i];
-    if(user.username == id){
+    if(user.authId == id){
       return done(null, user);
     }
   }
@@ -101,19 +102,60 @@ passport.use(new LocalStrategy(   // middleware callback -- local
     done(null, false);
   }
 ));
+
+passport.use(new FacebookStrategy({
+    clientID: "211517502648574",
+    clientSecret: "0df85d6b033029ad4e50f4864a81c662",
+    callbackURL: "/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    var authId = 'facebook:'+profile.id;
+    for(var i=0; i<users.length; i++){
+      var user = users[i];
+      if(user.authId === authId){
+        return done(null, user);
+      }
+    }
+    var newuser = {
+      'authId':authId,
+      'displayName':profile.displayName
+    };
+    user.push(newuser);
+    done(null, newuser);
+  }
+));
+
 app.post('/auth/login',
-        passport.authenticate( // middleware
-         'local',
-         {
-             successRedirect: '/welcome',
-             failureRedirect: '/auth/login',
-             failureFlash: false
-         }
-      )
+  passport.authenticate( // middleware
+   'local',
+   {
+       successRedirect: '/welcome',
+       failureRedirect: '/auth/login',
+       failureFlash: false
+     }
+  )
+);
+
+app.get('/auth/facebook',
+  passport.authenticate(
+    'facebook'
+  )
+);
+
+app.get('/auth/facebook/callback',
+    passport.authenticate(
+    'facebook',
+    {
+      successRedirect: '/welcome',
+      failureRedirect: '/auth/login'
+    }
+  )
 );
 
 var users = [
   {
+    authId:'local:color.park',
     username:'color.park',
     password: 'DOdcxcbj0sM8zCF5S/Agw1h8T9i/2eoA5y82fQr2zakUtaMJXB7GYuI0/0o5FXD45PsBc9wwdf/9knTqWOyFVOQJfeBqYiwCriZhQIlKTbA4jH8Oe9Wo7b7IogyH5l0mK7BoSQDUDEiZdp4kkIu1o1FE9TW666PRoAzz0ti6jEQ=', // pbkdf2-password(pwd+salt)
     salt: 'pIVX4DLJRU9OcQYDuMg/Otr1+L+csmbqBb7ziW27RKiwDmhVoKLF8Wwp5pcm2WoQhtmESfIpdrXiyQMaNeUv5w==',
@@ -125,6 +167,7 @@ app.post('/auth/register', function(req, res){
 
   hasher({password:req.body.password}, function(err, pass, salt, hash){
     var user = {
+      authId:'local:'+req.body.username,
       username:req.body.username,
       password:hash,
       salt:salt,
@@ -169,6 +212,7 @@ app.get('/auth/login', function(req, res){
       </p><p>
         <input type='submit'>
     </form>
+    <a href="/auth/facebook">FACEBOOK</a>
   `;
 
   res.send(output);

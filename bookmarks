@@ -51,3 +51,6 @@ https://www.npmjs.com/package/pbkdf2-password
 
 passportjs
 http://passportjs.org/
+
+passportjs under proxy
+https://github.com/binario200/passport-social-auth

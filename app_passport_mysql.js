@@ -3,6 +3,8 @@ var session=require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var bodyParser=require('body-parser');
 var bkfd2Password = require("pbkdf2-password");
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
 var hasher = bkfd2Password();
 var mysql = require('mysql');
 var con = mysql.createConnection({
@@ -14,8 +16,7 @@ var con = mysql.createConnection({
 
 con.connect();
 
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+
 
 var app = express();
 
@@ -86,13 +87,16 @@ passport.serializeUser(function(user, done) { // 최초 로긴할때 한번만 �
 
 passport.deserializeUser(function(id, done) {
   console.log('deserializeUser', id);
-  for(var i=0; i<users.length; i++){
-    var user = users[i];
-    if(user.authId == id){
-      return done(null, user);
+  var sql = 'SELECT * FROM users WHERE authId=?';
+  con.query(sql, [id], function(err, results){
+    console.log(sql, err, results);
+    if(err){
+      console.log(err);
+      done('There is no user.');
+    } else {
+      done(null, results[0]);
     }
-  }
-  return done(null, false);
+  });
 });
 
 passport.use(new LocalStrategy(   // middleware callback -- local
@@ -100,21 +104,23 @@ passport.use(new LocalStrategy(   // middleware callback -- local
     var uname = username;
     var pwd = password;
 
-    for( var i=0; i<users.length; i++){
-      var user = users[i];
-
-      if(uname == user.username){
-        return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
-          if(hash === user.password){
-            console.log('LocalStrategy', user);
-            done(null, user); // --> passport.serializeUser
-          }else{
-            done(null, false);  // --> passport.serializeUser 로 접근한 사용자가 다음에 로그인할 때
-          }
-        });
+    var sql = 'SELECT * FROM users WHERE authId=?';
+    con.query(sql, ['local:'+uname], function(err, results){
+      //console.log(results);
+      if(err){
+        return done('There is no user.');
       }
-    }
-    done(null, false);
+
+      var user = results[0];
+      return hasher({password:pwd, salt:user.salt}, function(err, pass, salt, hash){
+        if(hash === user.password){
+          console.log('LocalStrategy', user);
+          done(null, user); // --> passport.serializeUser
+        }else{
+          done(null, false);  // --> passport.serializeUser 로 접근한 사용자가 다음에 로그인할 때
+        }
+      });
+    });
   }
 ));
 
@@ -156,16 +162,14 @@ app.post('/auth/register', function(req, res){
         console.log(err);
         res.status(500);
       }else {
-        res.redirect('/welcome');
+        //res.send(users); // 디버깅용 브라우저에 출력하기
+        req.login(user, function(err){  // passportjs method
+          req.session.save(function(){
+            res.redirect('/welcome');
+          });
+        });
       }
     });
-    //users.push(user); // 전역변수 users에 추가하기
-    //res.send(users); // 디버깅용 브라우저에 출력하기
-    // req.login(user, function(err){  // passportjs method
-    //   req.session.save(function(){
-    //     res.redirect('/welcome');
-    //   });
-    // });
   });
 });
 

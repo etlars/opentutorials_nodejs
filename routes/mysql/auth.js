@@ -9,7 +9,7 @@ module.exports = function(passport){
     passport.authenticate( // middleware
      'local',
      {
-         successRedirect: '/welcome',
+         successRedirect: '/topic',
          failureRedirect: '/auth/login',
          failureFlash: false
        }
@@ -36,7 +36,7 @@ module.exports = function(passport){
           //res.send(users); // 디버깅용 브라우저에 출력하기
           req.login(user, function(err){  // passportjs method
             req.session.save(function(){
-              res.redirect('/welcome');
+              res.redirect('/topic');
             });
           });
         }
@@ -45,11 +45,17 @@ module.exports = function(passport){
   });
 
   route.get('/register', function(req, res){
-    res.render('auth/register');
+    var sql = 'SELECT id, title FROM topic';
+    con.query(sql, function(err, topics, fields){
+      res.render('auth/register', {topics:topics});
+    });
   });
 
   route.get('/login', function(req, res){
-    res.render('auth/login');
+    var sql = 'SELECT id, title FROM topic';
+    con.query(sql, function(err, topics, fields){
+      res.render('auth/login', {topics:topics});
+    });
   });
 
   // Logout
@@ -57,7 +63,7 @@ module.exports = function(passport){
     //delete req.session.displayName;
     req.logout(); // passportjs 에서 제공하는 method
     req.session.save(function(){
-      res.redirect('/welcome');
+      res.redirect('/topic');
     });
     //res.send('Bye~ Logout successfully');
   });

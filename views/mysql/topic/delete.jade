@@ -1,0 +1,9 @@
+extends ./layout
+block content
+  if user
+    article
+      h3='Delete? ' +topic.title
+        form(action='/topic/'+topic.id+'/delete' method='post')
+            input(type='submit' value='YES')
+        form(action='/topic/' method='get')
+            input(type='submit' value='NO')
